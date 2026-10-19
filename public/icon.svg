@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <clipPath id="arm"><rect x="84" y="196" width="296" height="62" rx="14"/></clipPath>
+  </defs>
+  <rect width="512" height="512" fill="#1fa85a"/>
+  <!-- corpo del ciak -->
+  <rect x="84" y="292" width="312" height="136" rx="22" fill="#fff"/>
+  <!-- barra fissa con strisce -->
+  <g>
+    <rect x="84" y="266" width="312" height="18" rx="9" fill="#fff"/>
+  </g>
+  <!-- braccio mobile inclinato -->
+  <g transform="rotate(-14 96 258)">
+    <rect x="84" y="196" width="296" height="62" rx="14" fill="#fff"/>
+    <g clip-path="url(#arm)" fill="#1fa85a">
+      <polygon points="130,196 166,196 136,258 100,258"/>
+      <polygon points="206,196 242,196 212,258 176,258"/>
+      <polygon points="282,196 318,196 288,258 252,258"/>
+      <polygon points="358,196 394,196 364,258 328,258"/>
+    </g>
+  </g>
+  <!-- linee sul corpo -->
+  <rect x="116" y="332" width="120" height="16" rx="8" fill="#1fa85a" opacity=".35"/>
+  <rect x="116" y="368" width="200" height="16" rx="8" fill="#1fa85a" opacity=".35"/>
+  <!-- segno + in alto a destra -->
+  <rect x="398" y="70" width="28" height="104" rx="14" fill="#fff"/>
+  <rect x="360" y="108" width="104" height="28" rx="14" fill="#fff"/>
+</svg>
