@@ -14,14 +14,29 @@ export function showStatus(title, saved, views) {
   return aired && uniqueEpisodes(views) >= aired ? 'completed' : 'watching';
 }
 
-const top = (map, n) => [...map.entries()].sort((a, b) => b[1] - a[1]).slice(0, n);
-const bump = (map, k, by = 1) => map.set(k, (map.get(k) || 0) + by);
+// Ogni categoria e' una mappa  etichetta -> (titolo -> numero di visioni),
+// cosi' toccando una barra si puo' mostrare l'elenco dei titoli che la compongono.
+const add = (map, label, key, n = 1) => {
+  let m = map.get(label);
+  if (!m) map.set(label, (m = new Map()));
+  m.set(key, (m.get(key) || 0) + n);
+};
+// righe [etichetta, valore, [[titolo, visioni], ...]]
+const rows = (map, { limit, byPlays = false, byLabel = false } = {}) => {
+  const out = [...map.entries()].map(([label, m]) => [
+    label,
+    byPlays ? [...m.values()].reduce((x, y) => x + y, 0) : m.size,
+    [...m.entries()],
+  ]);
+  out.sort(byLabel ? (x, y) => String(x[0]).localeCompare(String(y[0])) : (x, y) => y[1] - x[1]);
+  return limit ? out.slice(0, limit) : out;
+};
 
 export function computeStats({ views, titles, shows, epViews }, scope) {
   const vs = views.filter((v) => scope === 'all' || (scope === 'movie') === (v.t === 'movie'));
   const seen = new Map(); // titolo -> visioni
-  let minutes = 0, ratingSum = 0, ratingN = 0, noDate = 0;
-  const years = new Map();
+  let minutes = 0, ratingSum = 0, ratingN = 0;
+  const years = new Map(), noDate = new Map();
   let episodes = 0, moviePlays = 0;
 
   for (const v of vs) {
@@ -33,7 +48,7 @@ export function computeStats({ views, titles, shows, epViews }, scope) {
       moviePlays++;
       if (v.r) { ratingSum += v.r; ratingN++; }
     } else episodes++;
-    if (v.d) bump(years, v.d.slice(0, 4)); else noDate++;
+    if (v.d) add(years, v.d.slice(0, 4), k); else add(noDate, '', k);
   }
   // voti delle serie: uno per serie
   if (scope !== 'movie') {
@@ -44,20 +59,20 @@ export function computeStats({ views, titles, shows, epViews }, scope) {
     }
   }
 
-  const genres = new Map(), decades = new Map(), actors = new Map(), directors = new Map();
-  const status = new Map();
+  const genres = new Map(), decades = new Map(), actors = new Map(), directors = new Map(), status = new Map();
   const movies = [];
-  for (const k of seen.keys()) {
+  for (const [k, n] of seen) {
     const ti = titles.get(k);
     if (!ti) continue;
-    ti.genres.forEach((g) => bump(genres, g.name));
-    if (ti.year) bump(decades, Math.floor(ti.year / 10) * 10 + 's');
-    ti.actors.forEach((p) => bump(actors, p.name));
-    ti.directors.forEach((p) => bump(directors, p.name));
+    ti.genres.forEach((g) => add(genres, g.name, k, n));
+    if (ti.year) add(decades, Math.floor(ti.year / 10) * 10 + 's', k, n);
+    ti.actors.forEach((p) => add(actors, p.name, k, n));
+    ti.directors.forEach((p) => add(directors, p.name, k, n));
     if (k.startsWith('movie:') && ti.runtime) movies.push(ti);
-    if (k.startsWith('tv:')) bump(status, showStatus(ti, shows.get(ti.tmdb_id), epViews.get(ti.tmdb_id)));
+    if (k.startsWith('tv:')) add(status, showStatus(ti, shows.get(ti.tmdb_id), epViews.get(ti.tmdb_id)), k, n);
   }
   movies.sort((a, b) => b.runtime - a.runtime);
+  const noDateRow = noDate.size ? rows(noDate, { byPlays: true })[0] : null;
 
   return {
     titles: seen.size,
@@ -67,15 +82,15 @@ export function computeStats({ views, titles, shows, epViews }, scope) {
     minutes,
     avgRating: ratingN ? ratingSum / ratingN : null,
     ratedCount: ratingN,
-    genres: top(genres, 8),
-    decades: [...decades.entries()].sort((a, b) => a[0].localeCompare(b[0])),
-    years: [...years.entries()].sort((a, b) => a[0].localeCompare(b[0])),
-    noDate,
-    actors: top(actors, 10),
-    directors: top(directors, 10),
+    genres: rows(genres, { limit: 8 }),
+    decades: rows(decades, { byLabel: true }),
+    years: rows(years, { byPlays: true, byLabel: true }),
+    noDate: noDateRow,
+    actors: rows(actors, { limit: 10 }),
+    directors: rows(directors, { limit: 10 }),
     longest: movies[0] || null,
     shortest: movies[movies.length - 1] || null,
-    status: [...status.entries()],
+    status: rows(status),
   };
 }
 

@@ -9,6 +9,7 @@ export default function Settings() {
   const fileRef = useRef(null);
   const [prog, setProg] = useState(null);
   const [result, setResult] = useState(null);
+  const [datesMsg, setDatesMsg] = useState(null);
 
   const exportData = async () => {
     try {
@@ -17,6 +18,17 @@ export default function Settings() {
       a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 1)], { type: 'application/json' }));
       a.download = `showtime-backup-${new Date().toISOString().slice(0, 10)}.json`;
       a.click();
+    } catch (e) { fail(e.message); }
+  };
+
+  const clearDates = async (only) => {
+    const withDate = lib.views.filter((v) => v.d).length;
+    const msg = only === 'imported' ? t('confirmClearImported') : t('confirmClearAll', withDate);
+    if (!confirm(msg)) return;
+    try {
+      const r = await api.post('views/clear-dates', { only });
+      setDatesMsg(t('datesCleared', r.changed));
+      await act.reload();
     } catch (e) { fail(e.message); }
   };
 
@@ -63,6 +75,15 @@ export default function Settings() {
           </div>
         )}
         {result && <p className="ok"><b>{t('importDone')}.</b> {result}</p>}
+      </div>
+      <div className="card">
+        <h3>{t('datesTitle')}</h3>
+        <p className="muted">{t('datesHint')}</p>
+        <div className="row wrap">
+          <button className="btn danger" onClick={() => clearDates('imported')}>{t('clearImported')}</button>
+          <button className="btn danger" onClick={() => clearDates('all')}>{t('clearAll')}</button>
+        </div>
+        {datesMsg && <p className="ok">{datesMsg}</p>}
       </div>
       <div className="card">
         <h3>{t('account')}</h3>

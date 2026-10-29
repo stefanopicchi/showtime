@@ -33,6 +33,12 @@ const it = {
   retry: 'Riprova',
   username: 'Nome utente', password: 'Password', login: 'Entra', logout: 'Esci', account: 'Account',
   err_bad_login: 'Nome utente o password errati.',
+  datesTitle: 'Date di visione', datesHint: 'Cancella le date senza toccare film, serie ed episodi visti. Prima scarica un backup, l\'operazione non si può annullare.',
+  clearImported: 'Elimina le date importate', clearAll: 'Elimina tutte le date',
+  confirmClearImported: 'Eliminare le date di tutte le visioni importate (Trakt o backup)? Le visioni restano, senza data. Le date inserite a mano non vengono toccate.',
+  confirmClearAll: (n) => `Eliminare le date di ${n} visioni, comprese quelle inserite a mano? Le visioni restano, senza data.`,
+  datesCleared: (n) => `${n} date eliminate.`,
+  tapToSee: 'Tocca una voce per vedere i titoli',
 };
 const en = {
   library: 'Watched', search: 'Search', watchlist: 'Watchlist', stats: 'Stats', settings: 'Settings',
@@ -69,6 +75,12 @@ const en = {
   retry: 'Retry',
   username: 'Username', password: 'Password', login: 'Sign in', logout: 'Sign out', account: 'Account',
   err_bad_login: 'Wrong username or password.',
+  datesTitle: 'Watch dates', datesHint: 'Clears the dates without touching movies, series or watched episodes. Download a backup first, this cannot be undone.',
+  clearImported: 'Clear imported dates', clearAll: 'Clear all dates',
+  confirmClearImported: 'Clear the dates of all imported viewings (Trakt or backup)? The viewings stay, without a date. Dates you entered by hand are not touched.',
+  confirmClearAll: (n) => `Clear the dates of ${n} viewings, including the ones you entered by hand? The viewings stay, without a date.`,
+  datesCleared: (n) => `${n} dates cleared.`,
+  tapToSee: 'Tap an entry to see its titles',
 };
 
 export const dict = { it, en };

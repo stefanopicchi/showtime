@@ -112,3 +112,5 @@ input[type='checkbox'] { width: 20px; height: 20px; accent-color: var(--accent);
 .login input { width: 100%; }
 .login .btn { width: 100%; }
 .error-text { color: var(--danger); margin: 0; font-size: 0.9rem; }
+button.bar { width: 100%; padding: 3px 0; border: 0; background: none; text-align: left; }
+.linkline { display: block; width: 100%; padding: 4px 0; border: 0; background: none; text-align: left; font-size: 0.9rem; color: inherit; }
