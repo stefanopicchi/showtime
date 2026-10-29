@@ -256,6 +256,14 @@ export async function onRequest({ request, env, data, params }) {
       await db.prepare('DELETE FROM views WHERE user_id = ?1 AND id IN (SELECT value FROM json_each(?2))').bind(user, JSON.stringify(ids)).run();
       return json({ ok: true });
     }
+    // Cancella solo le date di visione (le visioni restano). only: 'imported' | 'all'
+    if (a === 'views' && b === 'clear-dates' && method === 'POST') {
+      const importedOnly = body.only === 'imported';
+      const r = await db.prepare(
+        `UPDATE views SET watched_at = NULL WHERE user_id = ? AND watched_at IS NOT NULL${importedOnly ? ' AND src IS NOT NULL' : ''}`
+      ).bind(user).run();
+      return json({ ok: true, changed: r.meta?.changes ?? 0 });
+    }
     if (a === 'views' && b && method === 'PATCH') {
       await db.prepare('UPDATE views SET watched_at = ?, rating = ? WHERE id = ? AND user_id = ?')
         .bind(date(body.d), rating(body.r), parseInt(b, 10), user).run();
